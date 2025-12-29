@@ -12,22 +12,21 @@ RUN apt-get update && \
     python3-venv \
     ffmpeg \
     aria2 \
-    wget \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Install appxdl from GitHub Releases (FIXED)
-RUN wget -O /usr/local/bin/appxdl \
-    https://github.com/masterapi/appxdl/releases/latest/download/appxdl-linux-amd64 \
-    && chmod +x /usr/local/bin/appxdl
-
-# Create virtual environment and install Python deps
+# Create virtual environment
 RUN python3 -m venv /venv && \
-    /venv/bin/pip install --upgrade pip && \
-    /venv/bin/pip install -r master.txt
+    /venv/bin/pip install --upgrade pip setuptools wheel
+
+# Install appxdl via pip (CORRECT METHOD)
+RUN /venv/bin/pip install appxdl
+
+# Install your project dependencies
+RUN /venv/bin/pip install -r master.txt
 
 # Set PATH
-ENV PATH="/usr/local/bin:/venv/bin:$PATH"
+ENV PATH="/venv/bin:$PATH"
 
 # Run application
 CMD ["python3", "main.py"]
